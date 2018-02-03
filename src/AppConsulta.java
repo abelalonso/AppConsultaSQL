@@ -1,5 +1,7 @@
 
 import java.awt.*;
+import java.sql.*;
+
 import javax.swing.*;
 
 public class AppConsulta {
@@ -35,6 +37,34 @@ class MarcoAplicacion extends JFrame{
 		add(resultado, BorderLayout.CENTER);
 		JButton botonConsulta=new JButton("Consulta");
 		add(botonConsulta, BorderLayout.SOUTH);
+		
+		//----------------CONEXIÓN BBDD------------------------------
+		try {
+
+			Connection conexion=DriverManager.getConnection("jdbc:mysql://localhost:3306/pruebas", "root", "root");
+			Statement sentencia=conexion.createStatement();
+			//------------------CARGA JCOMBOBOX SECCIONES-----------------
+			String consulta="SELECT DISTINCTROW SECCIÓN FROM PRODUCTOS";
+			ResultSet rs=sentencia.executeQuery(consulta);
+			
+			while(rs.next()){
+				secciones.addItem(rs.getString(1));
+			}
+			rs.close();
+			//------------------CARGA JCOMBOBOX PAISES-----------------
+			consulta="SELECT DISTINCTROW PAÍSDEORIGEN FROM PRODUCTOS";
+			rs=sentencia.executeQuery(consulta);
+			
+			while(rs.next()){
+				paises.addItem(rs.getString(1));
+			}
+			rs.close();
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		//----------------------FIN DE CONEXIÓN CON LA BBDD
 	}
 	
 	private JComboBox secciones;
