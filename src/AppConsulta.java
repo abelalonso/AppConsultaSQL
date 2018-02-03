@@ -1,5 +1,6 @@
 
 import java.awt.*;
+import java.awt.event.*;
 import java.sql.*;
 
 import javax.swing.*;
@@ -36,12 +37,20 @@ class MarcoAplicacion extends JFrame{
 		add(menus, BorderLayout.NORTH);
 		add(resultado, BorderLayout.CENTER);
 		JButton botonConsulta=new JButton("Consulta");
+		botonConsulta.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				ejecutaConsulta();
+			}
+			
+		});
 		add(botonConsulta, BorderLayout.SOUTH);
 		
 		//----------------CONEXIÓN BBDD------------------------------
 		try {
 
-			Connection conexion=DriverManager.getConnection("jdbc:mysql://localhost:3306/pruebas", "root", "root");
+			conexion=DriverManager.getConnection("jdbc:mysql://localhost:3306/pruebas", "root", "root");
 			Statement sentencia=conexion.createStatement();
 			//------------------CARGA JCOMBOBOX SECCIONES-----------------
 			String consulta="SELECT DISTINCTROW SECCIÓN FROM PRODUCTOS";
@@ -67,9 +76,31 @@ class MarcoAplicacion extends JFrame{
 		//----------------------FIN DE CONEXIÓN CON LA BBDD
 	}
 	
+	private void ejecutaConsulta(){
+		ResultSet rs=null;
+		try{
+			String seccion=(String)secciones.getSelectedItem();
+			enviaConsultaSeccion=conexion.prepareStatement(consultaSeccion);
+			enviaConsultaSeccion.setString(1, seccion);
+			rs=enviaConsultaSeccion.executeQuery();
+			
+			while (rs.next()){
+				resultado.append(rs.getString(1)+", ");
+				resultado.append(rs.getString(2)+", ");
+				resultado.append(rs.getString(3)+", ");
+				resultado.append(rs.getString(4)+".\n");
+			}
+		}catch (Exception e){
+			System.out.println(e.getMessage());
+		}
+	}
+	
 	private JComboBox secciones;
 	private JComboBox paises;
 	private JTextArea resultado;
-	
+	private Connection conexion;
+	private PreparedStatement enviaConsultaSeccion;
+	private final String consultaSeccion="SELECT NOMBREARTÍCULO, SECCIÓN, PRECIO, PAÍSDEORIGEN "
+										 + "FROM PRODUCTOS WHERE SECCIÓN=?";
 }
 
